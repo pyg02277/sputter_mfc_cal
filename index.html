@@ -754,6 +754,67 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        /* =========================================================
+           모바일 전용 반응형 분기 (width <= 768px 한정 오버라이드)
+           ========================================================= */
+        @media (max-width: 768px) {
+            /* 1. 상단 헤더: 요소 줄바꿈 방지 및 세로/2단 정돈 */
+            .topbar {
+                height: auto !important;
+                padding: 14px 16px !important;
+                flex-direction: column !important;
+                gap: 12px !important;
+                align-items: stretch !important;
+            }
+            .brand-area {
+                justify-content: space-between !important;
+            }
+            .eq-tabs {
+                width: 100% !important;
+            }
+            .eq-tab {
+                flex: 1 !important;
+                justify-content: center !important;
+            }
+            .status-pill {
+                align-self: flex-start !important;
+            }
+
+            /* 2. 작업 영역 및 패널 패딩 축소 */
+            .workspace {
+                margin: 12px auto !important;
+                padding: 0 12px !important;
+                grid-template-columns: 1fr !important;
+                gap: 16px !important;
+            }
+            .panel-body {
+                padding: 16px !important;
+            }
+
+            /* 3. 모바일 결과 화면 카드 정돈 */
+            .setpoint-banner {
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
+            }
+            .setpoint-number {
+                font-size: 2rem !important;
+            }
+            .channel-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 6px !important;
+            }
+            .metrics-grid {
+                grid-template-columns: 1fr !important;
+                gap: 10px !important;
+            }
+
+            /* 4. 터치 편의성 및 iOS 자동 줌 방지 */
+            input[type="number"], .btn-primary {
+                min-height: 44px !important;
+                font-size: 16px !important; /* iOS 자동 줌 방지 */
+            }
+        }
     </style>
 </head>
 <body>
