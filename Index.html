@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sputtering Process Control | 4.5G MFC Optimizer</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root {
+            --bg-app: #f1f5f9;
+            --bg-panel: #ffffff;
+            --bg-subtle: #f8fafc;
+            --bg-dark: #0f172a;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-soft: #eff6ff;
+            --accent-emerald: #059669;
+            --accent-emerald-soft: #ecfdf5;
+            --accent-amber: #d97706;
+            --accent-amber-soft: #fffbeb;
+            --accent-rose: #e11d48;
+            --accent-rose-soft: #fff1f2;
+            --text-strong: #0f172a;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --border-light: #e2e8f0;
+            --border-focus: #93c5fd;
+            --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+            --radius-lg: 14px;
+            --radius-md: 10px;
+            --radius-sm: 6px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Top Navigation Bar */
+        .topbar {
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #1e293b;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .brand-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-logo {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.95rem;
+            letter-spacing: -0.03em;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+        }
+
+        .brand-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: #f8fafc;
+        }
+
+        .brand-subtitle {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            margin-left: 8px;
+            padding-left: 10px;
+            border-left: 1px solid #334155;
+        }
+
+        .eq-tabs {
+            display: flex;
+            background-color: #1e293b;
+            padding: 4px;
+            border-radius: 8px;
+            gap: 4px;
+        }
+
+        .eq-tab {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #94a3b8;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .eq-tab.active {
+            background-color: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .eq-tab.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            background-color: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #10b981;
+        }
+
+        /* Main Workspace */
+        .workspace {
+            max-width: 1280px;
+            width: 100%;
+            margin: 28px auto;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 24px;
+            flex: 1;
+        }
+
+        @media (max-width: 980px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+            .brand-subtitle {
+                display: none;
+            }
+        }
+
+        .panel {
+            background-color: var(--bg-panel);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #ffffff;
+        }
+
+        .panel-title-group h2 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-strong);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-title-group p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+
+        .badge-model {
+            font-family: 'SFMono-Regular', Consolas, monospace;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--primary);
+            background-color: var(--primary-soft);
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid #bfdbfe;
+        }
+
+        .panel-body {
+            padding: 24px;
+            flex: 1;
+        }
+
+        /* Form Controls */
+        .form-section-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 7px;
+        }
+
+        .input-label-row label {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-strong);
+        }
+
+        .spec-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'SFMono-Regular', Consolas, monospace;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 11px 48px 11px 14px;
+            font-size: 0.98rem;
+            font-weight: 600;
+            color: var(--text-strong);
+            background-color: var(--bg-subtle);
+            border: 1.5px solid var(--border-light);
+            border-radius: var(--radius-md);
+            transition: all 0.15s ease;
+            font-family: inherit;
+        }
+
+        .input-wrapper input::placeholder {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            background-color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .input-unit {
+            position: absolute;
+            right: 14px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .error-msg {
+            color: var(--accent-rose);
+            font-size: 0.78rem;
+            font-weight: 500;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .section-divider {
+            height: 1px;
+            background-color: var(--border-light);
+            margin: 22px 0;
+        }
+
+        /* Weight Presets & Inputs */
+        .preset-group {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .preset-btn {
+            flex: 1;
+            padding: 7px 10px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-light);
+            background-color: var(--bg-subtle);
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .preset-btn:hover {
+            background-color: #e2e8f0;
+        }
+
+        .preset-btn.active {
+            background-color: var(--primary-soft);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .weight-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .info-card {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-light);
+            border-left: 3.5px solid var(--primary);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            margin-bottom: 22px;
+            font-size: 0.81rem;
+            line-height: 1.55;
+            color: var(--text-main);
+        }
+
+        .info-card-title {
+            font-weight: 700;
+            color: var(--text-strong);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .info-list {
+            list-style: none;
+            margin-top: 8px;
+        }
+
+        .info-list li {
+            position: relative;
+            padding-left: 12px;
+            margin-bottom: 5px;
+        }
+
+        .info-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+            color: #ffffff;
+            border: none;
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            font-size: 0.96rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(180deg, #1d4ed8 0%, #1e40af 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        /* Right Panel: Results & Telemetry */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 420px;
+            text-align: center;
+            color: var(--text-muted);
+            padding: 32px;
+        }
+
+        .empty-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--bg-subtle);
+            border: 1px dashed #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            color: #94a3b8;
+            font-size: 1.4rem;
+        }
+
+        .empty-state h3 {
+            font-size: 1rem;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .empty-state p {
+            font-size: 0.84rem;
+            max-width: 340px;
+            line-height: 1.5;
+        }
+
+        #result-dashboard {
+            display: none;
+        }
+
+        /* Primary Setpoint Cards */
+        .setpoint-banner {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .setpoint-card {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            padding: 20px 22px;
+            border-radius: var(--radius-md);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .setpoint-card.o2-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+        }
+
+        .setpoint-tag {
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .o2-card .setpoint-tag {
+            color: #bfdbfe;
+        }
+
+        .setpoint-main {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .setpoint-number {
+            font-size: 2.3rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            font-family: 'SFMono-Regular', Consolas, monospace;
+            line-height: 1;
+        }
+
+        .setpoint-unit {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+
+        .setpoint-sub {
+            margin-top: 10px;
+            font-size: 0.78rem;
+            color: #94a3b8;
+        }
+
+        .o2-card .setpoint-sub {
+            color: #dbeafe;
+        }
+
+        /* 9-Channel Matrix Visualizer */
+        .channel-box {
+            background-color: var(--bg-subtle);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .channel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-strong);
+        }
+
+        .channel-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 8px;
+        }
+
+        @media (max-width: 640px) {
+            .channel-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .setpoint-banner {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .ch-node {
+            background-color: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            padding: 8px 4px;
+            text-align: center;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+
+        .ch-name {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .ch-val {
+            font-family: 'SFMono-Regular', Consolas, monospace;
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Telemetry Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .metric-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .delta-badge {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-family: 'SFMono-Regular', Consolas, monospace;
+        }
+
+        .delta-good {
+            background-color: var(--accent-emerald-soft);
+            color: var(--accent-emerald);
+        }
+
+        .delta-warn {
+            background-color: var(--accent-amber-soft);
+            color: var(--accent-amber);
+        }
+
+        .metric-value-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+        }
+
+        .metric-val {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--text-strong);
+            font-family: 'SFMono-Regular', Consolas, monospace;
+        }
+
+        .metric-target-ref {
+            font-size: 0.76rem;
+            color: var(--text-muted);
+        }
+
+        /* Recipe Log Table */
+        .log-section {
+            border-top: 1px solid var(--border-light);
+            padding-top: 20px;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .log-header h4 {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-strong);
+        }
+
+        .log-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-outline {
+            padding: 6px 12px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            border: 1px solid var(--border-light);
+            background-color: #ffffff;
+            color: var(--text-main);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .btn-outline:hover {
+            background-color: var(--bg-subtle);
+            border-color: #cbd5e1;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        th {
+            background-color: var(--bg-subtle);
+            color: var(--text-muted);
+            font-weight: 700;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-light);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-strong);
+            font-family: 'SFMono-Regular', Consolas, monospace;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .td-highlight {
+            font-weight: 700;
+            color: var(--primary);
+            background-color: #f8fafc;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            padding: 12px 18px;
+            border-radius: var(--radius-md);
+            font-size: 0.84rem;
+            font-weight: 600;
+            box-shadow: var(--shadow-md);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.25s ease;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <header class="topbar">
+        <div class="brand-area">
+            <div class="brand-logo">4.5G</div>
+            <div>
+                <span class="brand-title">Sputtering MFC Optimizer</span>
+                <span class="brand-subtitle">Thin-Film Deposition Process Engineering Suite</span>
+            </div>
+        </div>
+
+        <div class="eq-tabs">
+            <button class="eq-tab active" type="button">
+                <span>●</span> 4.5G Rotary Chamber
+            </button>
+            <button class="eq-tab disabled" type="button" title="향후 P-Q 모델 확보 시 확장 가능">
+                8.5G Large-Area (확장 예정)
+            </button>
+        </div>
+
+        <div class="status-pill">
+            <span class="status-dot"></span>
+            <span>P-Q Model: Q = 700P + 2</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="workspace">
+        
+        <!-- Left Panel: Input & Parameters -->
+        <section class="panel">
+            <div class="panel-header">
+                <div class="panel-title-group">
+                    <h2>공정 타겟 및 가중치 설정</h2>
+                    <p>목표 산소 분압비와 공정 압력을 입력하십시오.</p>
+                </div>
+                <span class="badge-model">IGZO / Oxide</span>
+            </div>
+
+            <div class="panel-body">
+                <div class="form-section-title">
+                    <span>1. 목표 공정 조건 (Target Spec)</span>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-label-row">
+                        <label for="targetRatio">목표 O2 유량 비율 (O2 Flow Ratio)</label>
+                        <span class="spec-hint">Range: 0 ~ 100%</span>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="number" id="targetRatio" step="0.1" min="0" max="100" placeholder="값을 입력하세요 (예: 40)">
+                        <span class="input-unit">%</span>
+                    </div>
+                    <div id="ratioError" class="error-msg">0 이상 100 이하의 목표 O2 비율을 입력해주세요.</div>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-label-row">
+                        <label for="targetPressure">목표 공정 압력 (Process Pressure)</label>
+                        <span class="spec-hint">1 sccm 정수 제어</span>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="number" id="targetPressure" step="0.01" min="0.01" placeholder="값을 입력하세요 (예: 0.4)">
+                        <span class="input-unit">Pa</span>
+                    </div>
+                    <div id="pressureError" class="error-msg">0보다 큰 목표 공정 압력(Pa)을 입력해주세요.</div>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <div class="form-section-title">
+                    <span>2. 다목적 최적화 가중치 (Loss Weight)</span>
+                </div>
+
+                <div class="preset-group">
+                    <button type="button" class="preset-btn active" onclick="setWeightPreset(1.0, 1.0, this)">1 : 1 균형 (권장)</button>
+                    <button type="button" class="preset-btn" onclick="setWeightPreset(2.5, 1.0, this)">산소 분압 우선 (2.5 : 1)</button>
+                    <button type="button" class="preset-btn" onclick="setWeightPreset(1.0, 2.5, this)">총 유량/압력 우선 (1 : 2.5)</button>
+                </div>
+
+                <div class="weight-grid">
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <div class="input-label-row">
+                            <label for="weightRatio">O2 비율 가중치</label>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="weightRatio" step="0.1" min="0.1" value="1.0" oninput="clearPresetActive()">
+                            <span class="input-unit">W_r</span>
+                        </div>
+                    </div>
+                    <div class="input-group" style="margin-bottom: 0;">
+                        <div class="input-label-row">
+                            <label for="weightPressure">공정 압력 가중치</label>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="weightPressure" step="0.1" min="0.1" value="1.0" oninput="clearPresetActive()">
+                            <span class="input-unit">W_p</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-card-title">
+                        <span>⚙️ 가중치(Weight) 상세 가이드</span>
+                    </div>
+                    MFC는 <strong>1 sccm 정수 단위로만 제어</strong>되므로, 목표 비율과 목표 압력을 동시에 100% 만족하는 자연수 조합이 존재하지 않을 수 있습니다. 이때 알고리즘이 어느 쪽 오차를 더 엄격히 억제할지 결정합니다.
+                    <ul class="info-list">
+                        <li><strong>1 : 1 설정 (권장 기본값):</strong> 산소 비율 오차율(%)과 공정 압력 오차율(%)을 동일한 비중으로 평가하여, 양쪽 모두 오차 합계가 최소가 되는 가장 이상적인 타협점을 도출합니다.</li>
+                        <li><strong>산소 분압 우선 (예: 2.5 : 1):</strong> 박막의 캐리어 농도 등 화학적 정량비가 중요할 때 사용합니다. 총 유량(압력)이 약간 흔들리더라도 목표 O2 비율을 최우선으로 맞춥니다.</li>
+                    </ul>
+                </div>
+
+                <button type="button" class="btn-primary" onclick="calculateMFC()">
+                    <span>최적 MFC 레시피 산출하기 (Run Optimization)</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Right Panel: Output & Telemetry -->
+        <section class="panel">
+            <div class="panel-header">
+                <div class="panel-title-group">
+                    <h2>MFC 최적 제어 레시피 및 공정 시뮬레이션</h2>
+                    <p>Ar(1~500 sccm) 및 O2 9채널(각 0~200 sccm) 전체 그리드 탐색 결과</p>
+                </div>
+                <button type="button" class="btn-outline" id="copyRecipeBtn" style="display: none;" onclick="copyCurrentRecipe()">
+                    📋 결과값 복사
+                </button>
+            </div>
+
+            <div class="panel-body">
+                <!-- Initial Empty View -->
+                <div id="empty-state" class="empty-state">
+                    <div class="empty-icon">📊</div>
+                    <h3>산출 대기 중 (Ready for Calculation)</h3>
+                    <p>좌측 패널에 목표 O2 비율(%)과 공정 압력(Pa)을 입력한 후 산출 버튼을 누르면 장비 입력용 정수 셋팅값과 예상 오차 분석표가 표시됩니다.</p>
+                </div>
+
+                <!-- Calculated Result View -->
+                <div id="result-dashboard">
+                    
+                    <!-- Main Hardware Setpoints -->
+                    <div class="setpoint-banner">
+                        <div class="setpoint-card">
+                            <div class="setpoint-tag">
+                                <span>Ar Main Flow Controller</span>
+                                <span>CH: MFC 32</span>
+                            </div>
+                            <div class="setpoint-main">
+                                <span class="setpoint-number" id="resAr">-</span>
+                                <span class="setpoint-unit">sccm</span>
+                            </div>
+                            <div class="setpoint-sub">제어 범위: 1 ~ 500 sccm (정수 입력)</div>
+                        </div>
+
+                        <div class="setpoint-card o2-card">
+                            <div class="setpoint-tag">
+                                <span>O2 Individual Flow (×9 동일)</span>
+                                <span>CH: MFC 331 ~ 339</span>
+                            </div>
+                            <div class="setpoint-main">
+                                <span class="setpoint-number" id="resO2Ind">-</span>
+                                <span class="setpoint-unit">sccm / ch</span>
+                            </div>
+                            <div class="setpoint-sub">9개 채널 총합 O2 유량: <strong id="resTotalO2Banner">-</strong> sccm</div>
+                        </div>
+                    </div>
+
+                    <!-- 9-Channel Distribution Matrix -->
+                    <div class="channel-box">
+                        <div class="channel-header">
+                            <span>O2 9-Channel 균등 분배 매트릭스 (장비 입력 확인용)</span>
+                            <span style="color: var(--text-muted); font-weight: 500;">제어 범위: 0 ~ 200 sccm</span>
+                        </div>
+                        <div class="channel-grid" id="channelGrid">
+                            <!-- JS populates MFC331 ~ MFC339 -->
+                        </div>
+                    </div>
+
+                    <!-- Expected Process Telemetry -->
+                    <div class="form-section-title">
+                        <span>예상 실제 공정 도달값 및 오차 검증 (Process Telemetry)</span>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-top">
+                                <span class="metric-label">예상 실제 O2 비율 (Actual O2 Ratio)</span>
+                                <span class="delta-badge delta-good" id="deltaRatioBadge">-</span>
+                            </div>
+                            <div class="metric-value-row">
+                                <span class="metric-val" id="resActualRatio">-</span>
+                                <span class="metric-target-ref" id="refTargetRatio">Target: -</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-top">
+                                <span class="metric-label">예상 실제 공정 압력 (Actual Pressure)</span>
+                                <span class="delta-badge delta-good" id="deltaPressureBadge">-</span>
+                            </div>
+                            <div class="metric-value-row">
+                                <span class="metric-val" id="resActualPressure">-</span>
+                                <span class="metric-target-ref" id="refTargetPressure">Target: -</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-top">
+                                <span class="metric-label">챔버 총 가스 유량 (Total Gas Flow)</span>
+                                <span class="spec-hint">Ar + 9×O2</span>
+                            </div>
+                            <div class="metric-value-row">
+                                <span class="metric-val" id="resTotalFlow">-</span>
+                                <span class="metric-target-ref" id="refIdealFlow">모델 기준 유량: -</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-top">
+                                <span class="metric-label">총 산소 유입량 (Total O2 Flow)</span>
+                                <span class="spec-hint">MFC 331~339 합산</span>
+                            </div>
+                            <div class="metric-value-row">
+                                <span class="metric-val" id="resTotalO2">-</span>
+                                <span class="metric-target-ref">단일 채널 × 9</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DOE Recipe History Table -->
+                    <div class="log-section">
+                        <div class="log-header">
+                            <h4>누적 계산 히스토리 (DOE 테이블 작성용)</h4>
+                            <div class="log-actions">
+                                <button type="button" class="btn-outline" onclick="exportHistoryCSV()">📥 CSV 다운로드</button>
+                                <button type="button" class="btn-outline" onclick="clearHistory()">초기화</button>
+                            </div>
+                        </div>
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>목표 O2(%)</th>
+                                        <th>목표 압력(Pa)</th>
+                                        <th>가중치(R:P)</th>
+                                        <th>Ar MFC32</th>
+                                        <th>O2 (331~339)</th>
+                                        <th>총 유량</th>
+                                        <th>실제 O2(%)</th>
+                                        <th>실제 압력(Pa)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyBody">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="toast" class="toast">클립보드에 복사되었습니다.</div>
+
+    <script>
+        let recipeHistory = [];
+        let lastCalculated = null;
+
+        // Enter 키로 바로 계산 실행
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                calculateMFC();
+            }
+        });
+
+        function setWeightPreset(wR, wP, btnElement) {
+            document.getElementById('weightRatio').value = wR.toFixed(1);
+            document.getElementById('weightPressure').value = wP.toFixed(1);
+            
+            const buttons = document.querySelectorAll('.preset-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+        }
+
+        function clearPresetActive() {
+            const buttons = document.querySelectorAll('.preset-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+        }
+
+        function renderChannelMatrix(o2Val) {
+            const grid = document.getElementById('channelGrid');
+            grid.innerHTML = '';
+            for (let i = 331; i <= 339; i++) {
+                const node = document.createElement('div');
+                node.className = 'ch-node';
+                node.innerHTML = `
+                    <div class="ch-name">MFC ${i}</div>
+                    <div class="ch-val">${o2Val}</div>
+                `;
+                grid.appendChild(node);
+            }
+        }
+
+        function calculateMFC() {
+            const ratioStr = document.getElementById('targetRatio').value.trim();
+            const pressureStr = document.getElementById('targetPressure').value.trim();
+            const weightRStr = document.getElementById('weightRatio').value.trim();
+            const weightPStr = document.getElementById('weightPressure').value.trim();
+
+            const ratioError = document.getElementById('ratioError');
+            const pressureError = document.getElementById('pressureError');
+
+            ratioError.style.display = 'none';
+            pressureError.style.display = 'none';
+
+            const targetRatioPct = parseFloat(ratioStr);
+            const targetPressure = parseFloat(pressureStr);
+
+            let hasError = false;
+            if (ratioStr === '' || isNaN(targetRatioPct) || targetRatioPct < 0 || targetRatioPct > 100) {
+                ratioError.style.display = 'block';
+                hasError = true;
+            }
+            if (pressureStr === '' || isNaN(targetPressure) || targetPressure <= 0) {
+                pressureError.style.display = 'block';
+                hasError = true;
+            }
+            if (hasError) return;
+
+            const targetRatio = targetRatioPct / 100;
+            const weightR = parseFloat(weightRStr) > 0 ? parseFloat(weightRStr) : 1.0;
+            const weightP = parseFloat(weightPStr) > 0 ? parseFloat(weightPStr) : 1.0;
+
+            let bestScore = Infinity;
+            let bestAr = 1;
+            let bestO2Ind = 0;
+
+            // Grid Search: O2 (0~200 sccm), Ar (1~500 sccm)
+            for (let o2Ind = 0; o2Ind <= 200; o2Ind++) {
+                for (let ar = 1; ar <= 500; ar++) {
+                    const totalFlow = ar + (9 * o2Ind);
+                    const actualRatio = (9 * o2Ind) / totalFlow;
+                    const actualPressure = (totalFlow - 2) / 700;
+
+                    let errorRatio;
+                    if (targetRatio === 0) {
+                        errorRatio = actualRatio === 0 ? 0 : Infinity;
+                    } else {
+                        errorRatio = Math.abs(actualRatio - targetRatio) / targetRatio;
+                    }
+
+                    const errorPressure = Math.abs(actualPressure - targetPressure) / targetPressure;
+                    const score = (weightR * errorRatio) + (weightP * errorPressure);
+
+                    if (score < bestScore) {
+                        bestScore = score;
+                        bestAr = ar;
+                        bestO2Ind = o2Ind;
+                    }
+                }
+            }
+
+            const totalO2 = 9 * bestO2Ind;
+            const finalTotalFlow = bestAr + totalO2;
+            const finalRatioPct = (totalO2 / finalTotalFlow) * 100;
+            const finalPressure = (finalTotalFlow - 2) / 700;
+            const idealFlow = Math.round((700 * targetPressure) + 2);
+
+            const diffRatioPct = finalRatioPct - targetRatioPct;
+            const diffPressure = finalPressure - targetPressure;
+
+            // Update Primary Banner
+            document.getElementById('resAr').textContent = bestAr;
+            document.getElementById('resO2Ind').textContent = bestO2Ind;
+            document.getElementById('resTotalO2Banner').textContent = totalO2;
+
+            // Render 9 Channels
+            renderChannelMatrix(bestO2Ind);
+
+            // Update Telemetry Cards
+            document.getElementById('resActualRatio').textContent = finalRatioPct.toFixed(1) + ' %';
+            document.getElementById('refTargetRatio').textContent = `목표치: ${targetRatioPct.toFixed(1)} %`;
+
+            const ratioBadge = document.getElementById('deltaRatioBadge');
+            const absRatioDiff = Math.abs(diffRatioPct);
+            ratioBadge.textContent = `편차 ${diffRatioPct >= 0 ? '+' : ''}${diffRatioPct.toFixed(2)}%p`;
+            ratioBadge.className = 'delta-badge ' + (absRatioDiff <= 1.5 ? 'delta-good' : 'delta-warn');
+
+            document.getElementById('resActualPressure').textContent = finalPressure.toFixed(3) + ' Pa';
+            document.getElementById('refTargetPressure').textContent = `목표치: ${targetPressure.toFixed(2)} Pa`;
+
+            const pressBadge = document.getElementById('deltaPressureBadge');
+            const absPressDiffPct = (Math.abs(diffPressure) / targetPressure) * 100;
+            pressBadge.textContent = `오차 ${diffPressure >= 0 ? '+' : ''}${diffPressure.toFixed(3)} Pa`;
+            pressBadge.className = 'delta-badge ' + (absPressDiffPct <= 3.0 ? 'delta-good' : 'delta-warn');
+
+            document.getElementById('resTotalFlow').textContent = finalTotalFlow + ' sccm';
+            document.getElementById('refIdealFlow').textContent = `선형식 기준: ${idealFlow} sccm`;
+            document.getElementById('resTotalO2').textContent = totalO2 + ' sccm';
+
+            // Switch Views
+            document.getElementById('empty-state').style.display = 'none';
+            document.getElementById('result-dashboard').style.display = 'block';
+            document.getElementById('copyRecipeBtn').style.display = 'inline-block';
+
+            // Save to History
+            lastCalculated = {
+                targetRatioPct: targetRatioPct.toFixed(1),
+                targetPressure: targetPressure.toFixed(2),
+                weights: `${weightR}:${weightP}`,
+                ar: bestAr,
+                o2Ind: bestO2Ind,
+                totalFlow: finalTotalFlow,
+                actualRatioPct: finalRatioPct.toFixed(1),
+                actualPressure: finalPressure.toFixed(3)
+            };
+
+            addHistoryRow(lastCalculated);
+        }
+
+        function addHistoryRow(item) {
+            recipeHistory.unshift(item);
+            if (recipeHistory.length > 15) recipeHistory.pop();
+            renderHistoryTable();
+        }
+
+        function renderHistoryTable() {
+            const tbody = document.getElementById('historyBody');
+            tbody.innerHTML = '';
+            recipeHistory.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.targetRatioPct}%</td>
+                    <td>${row.targetPressure}</td>
+                    <td>${row.weights}</td>
+                    <td class="td-highlight">${row.ar}</td>
+                    <td class="td-highlight">${row.o2Ind}</td>
+                    <td>${row.totalFlow}</td>
+                    <td>${row.actualRatioPct}%</td>
+                    <td>${row.actualPressure}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function clearHistory() {
+            recipeHistory = [];
+            renderHistoryTable();
+        }
+
+        function copyCurrentRecipe() {
+            if (!lastCalculated) return;
+            const text = `[4.5G MFC 최적 셋팅]\n목표 조건: O2 ${lastCalculated.targetRatioPct}% / ${lastCalculated.targetPressure}Pa\n장비 입력: Ar(MFC32) = ${lastCalculated.ar} sccm, O2(MFC331~339) = 각 ${lastCalculated.o2Ind} sccm\n예상 결과: 실제 O2 ${lastCalculated.actualRatioPct}%, 실제 압력 ${lastCalculated.actualPressure}Pa (총 유량 ${lastCalculated.totalFlow} sccm)`;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('현재 레시피가 클립보드에 복사되었습니다.');
+            });
+        }
+
+        function exportHistoryCSV() {
+            if (recipeHistory.length === 0) return;
+            let csv = '\uFEFF목표 O2 비율(%),목표 압력(Pa),가중치(R:P),Ar MFC32,O2 MFC331~339(개별),총 유량(sccm),실제 O2 비율(%),실제 압력(Pa)\n';
+            recipeHistory.forEach(r => {
+                csv += `${r.targetRatioPct},${r.targetPressure},${r.weights},${r.ar},${r.o2Ind},${r.totalFlow},${r.actualRatioPct},${r.actualPressure}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '4.5G_Sputter_DOE_History.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2200);
+        }
+    </script>
+</body>
+</html>
