@@ -807,7 +807,7 @@
         .modal-card {
             background-color: #ffffff;
             border-radius: var(--radius-lg);
-            max-width: 780px;
+            max-width: 720px;
             width: 100%;
             max-height: 90vh;
             display: flex;
@@ -862,51 +862,13 @@
             gap: 16px;
         }
 
-        .modal-tabs {
-            display: flex;
-            gap: 8px;
-            width: 100%;
-            justify-content: center;
-        }
-
-        .modal-tab-btn {
-            padding: 7px 14px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            border-radius: 6px;
-            border: 1px solid var(--border-light);
-            background-color: #ffffff;
-            color: var(--text-main);
-            cursor: pointer;
-        }
-
-        .modal-tab-btn.active {
-            background-color: var(--primary);
-            color: #ffffff;
-            border-color: var(--primary);
-        }
-
         .chamber-diagram-wrap {
             width: 100%;
-            max-width: 560px;
+            max-width: 520px;
             background-color: #4b5563;
             border-radius: 10px;
             padding: 12px;
             box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
-        }
-
-        .chamber-photo-wrap {
-            display: none;
-            width: 100%;
-            max-width: 560px;
-            text-align: center;
-        }
-
-        .chamber-photo-wrap img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            border: 1px solid var(--border-light);
         }
 
         .modal-caption {
@@ -1149,7 +1111,7 @@
                     <h3>산출 대기 중 (Ready for Calculation)</h3>
                     <p>좌측 패널에 목표 O2 비율(%)과 공정 압력(Pa)을 입력한 후 산출 버튼을 누르면 장비 입력용 정수 셋팅값과 예상 오차 분석표가 표시됩니다.</p>
                     <button type="button" class="btn-location-link" onclick="openChamberModal()">
-                        📍 챔버 내 O2 MFC(31~39) 위치 도면 확인하기
+                        📍 챔버 내 O2 MFC(31~39) 위치 개략도 확인하기
                     </button>
                 </div>
 
@@ -1283,123 +1245,63 @@
         </section>
     </main>
 
-    <!-- Chamber O2 MFC Location Modal -->
+    <!-- Chamber O2 MFC Location Modal (Security-Sanitized: No Dimensions or Scale Lines) -->
     <div id="chamberModal" class="modal-overlay" onclick="closeChamberModalOnBg(event)">
         <div class="modal-card">
             <div class="modal-header">
-                <h3>📍 4.5G 챔버 내 O2 MFC (MFC 31 ~ 39) 위치 도면</h3>
+                <h3>📍 4.5G 챔버 내 O2 MFC (MFC 31 ~ 39) 배치 개략도</h3>
                 <button type="button" class="modal-close" onclick="closeChamberModal()">✕</button>
             </div>
             <div class="modal-body">
-                <div class="modal-tabs">
-                    <button type="button" class="modal-tab-btn active" id="tabBtnSvg" onclick="switchModalTab('svg')">CAD 치수 벡터 도면 (기본 내장)</button>
-                    <button type="button" class="modal-tab-btn" id="tabBtnImg" onclick="switchModalTab('img')">원본 CAD 이미지 파일 (mfc_layout.jpg)</button>
-                </div>
-
-                <!-- Built-in CAD Replica SVG (Always works without external image file) -->
-                <div class="chamber-diagram-wrap" id="svgDiagramWrap">
-                    <svg viewBox="0 0 600 680" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+                <!-- Sanitized Schematic SVG (No dimension numbers or measurement lines) -->
+                <div class="chamber-diagram-wrap">
+                    <svg viewBox="0 0 600 660" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
                         <!-- Outer Chamber Frame -->
                         <rect x="30" y="20" width="540" height="620" rx="6" fill="#6b7280" stroke="#1f2937" stroke-width="3"/>
-                        <rect x="65" y="55" width="470" height="555" fill="#7c8594" stroke="#111827" stroke-width="2"/>
-                        
-                        <!-- Inner Dashed Reference Box -->
-                        <rect x="170" y="190" width="260" height="330" fill="none" stroke="#1f2937" stroke-width="1.5" stroke-dasharray="10,5"/>
-                        
-                        <!-- Center Vertical Axis -->
-                        <line x1="300" y1="120" x2="300" y2="560" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="12,4,3,4"/>
+                        <rect x="65" y="55" width="470" height="550" fill="#7c8594" stroke="#111827" stroke-width="2"/>
 
                         <!-- Center Viewport Window -->
                         <circle cx="300" cy="360" r="56" fill="#9ca3af" stroke="#111827" stroke-width="1.5"/>
                         <circle cx="300" cy="360" r="42" fill="#2563eb" stroke="#111827" stroke-width="2"/>
                         <rect x="258" y="353" width="84" height="14" fill="#b45309" stroke="#111827" stroke-width="1.5"/>
 
-                        <!-- Red Crosshair Reference Points -->
-                        <g stroke="#dc2626" stroke-width="1.5">
-                            <circle cx="215" cy="235" r="7" fill="#111827"/>
-                            <line x1="203" y1="235" x2="227" y2="235"/><line x1="215" y1="223" x2="215" y2="247"/>
-                            <circle cx="385" cy="235" r="7" fill="#111827"/>
-                            <line x1="373" y1="235" x2="397" y2="235"/><line x1="385" y1="223" x2="385" y2="247"/>
-                            <circle cx="215" cy="465" r="7" fill="#111827"/>
-                            <line x1="203" y1="465" x2="227" y2="465"/><line x1="215" y1="453" x2="215" y2="477"/>
-                            <circle cx="385" cy="465" r="7" fill="#111827"/>
-                            <line x1="373" y1="465" x2="397" y2="465"/><line x1="385" y1="453" x2="385" y2="477"/>
-                        </g>
-
-                        <!-- Dimension Lines (Blue) -->
-                        <g stroke="#1d4ed8" stroke-width="1.4" fill="#1d4ed8" font-family="Consolas, monospace" font-size="16" font-weight="bold">
-                            <!-- Top 365 / 365 -->
-                            <line x1="170" y1="140" x2="430" y2="140"/>
-                            <text x="235" y="134" text-anchor="middle" stroke="none">365</text>
-                            <text x="365" y="134" text-anchor="middle" stroke="none">365</text>
-
-                            <!-- Left Vertical 92.5 / 735 / 92.5 -->
-                            <line x1="125" y1="150" x2="125" y2="520"/>
-                            <text x="118" y="198" text-anchor="end" stroke="none" transform="rotate(-90 118,198)">92.5</text>
-                            <text x="118" y="365" text-anchor="end" stroke="none" transform="rotate(-90 118,365)">735</text>
-                            <text x="118" y="495" text-anchor="end" stroke="none" transform="rotate(-90 118,495)">92.5</text>
-
-                            <!-- Right Vertical 92.5 / 587.5 / 240 -->
-                            <line x1="475" y1="150" x2="475" y2="520"/>
-                            <text x="468" y="198" text-anchor="end" stroke="none" transform="rotate(-90 468,198)">92.5</text>
-                            <text x="468" y="345" text-anchor="end" stroke="none" transform="rotate(-90 468,345)">587.5</text>
-                            <text x="468" y="470" text-anchor="end" stroke="none" transform="rotate(-90 468,470)">240</text>
-
-                            <!-- Bottom 105 / 260 / 260 / 105 -->
-                            <line x1="170" y1="535" x2="430" y2="535"/>
-                            <text x="192" y="528" text-anchor="middle" stroke="none" font-size="14">105</text>
-                            <text x="255" y="528" text-anchor="middle" stroke="none">260</text>
-                            <text x="345" y="528" text-anchor="middle" stroke="none">260</text>
-                            <text x="408" y="528" text-anchor="middle" stroke="none" font-size="14">105</text>
-                        </g>
-
-                        <!-- 9 Green O2 MFC Ports (3x3 Grid) -->
+                        <!-- 9 Green O2 MFC Ports (3x3 Schematic Grid) -->
                         <!-- Top Row: MFC32, MFC35, MFC38 -->
                         <g>
-                            <circle cx="125" cy="150" r="13" fill="#22c55e" stroke="#111827" stroke-width="2"/>
-                            <text x="125" y="118" text-anchor="middle" fill="#a3e635" font-size="18" font-weight="800" font-family="sans-serif">MFC32</text>
+                            <circle cx="135" cy="150" r="14" fill="#22c55e" stroke="#111827" stroke-width="2"/>
+                            <text x="135" y="118" text-anchor="middle" fill="#a3e635" font-size="18" font-weight="800" font-family="sans-serif">MFC32</text>
 
-                            <circle cx="300" cy="150" r="13" fill="#22c55e" stroke="#111827" stroke-width="2"/>
+                            <circle cx="300" cy="150" r="14" fill="#22c55e" stroke="#111827" stroke-width="2"/>
                             <text x="300" y="118" text-anchor="middle" fill="#a3e635" font-size="18" font-weight="800" font-family="sans-serif">MFC35</text>
 
-                            <circle cx="475" cy="150" r="13" fill="#22c55e" stroke="#111827" stroke-width="2"/>
-                            <text x="475" y="118" text-anchor="middle" fill="#a3e635" font-size="18" font-weight="800" font-family="sans-serif">MFC38</text>
+                            <circle cx="465" cy="150" r="14" fill="#22c55e" stroke="#111827" stroke-width="2"/>
+                            <text x="465" y="118" text-anchor="middle" fill="#a3e635" font-size="18" font-weight="800" font-family="sans-serif">MFC38</text>
                         </g>
 
                         <!-- Middle Row: MFC33, MFC34, MFC37 -->
                         <g>
-                            <circle cx="125" cy="280" r="13" fill="#22c55e" stroke="#111827" stroke-width="2"/>
-                            <text x="125" y="314" text-anchor="middle" fill="#a3e635" font-size="18" font-weight="800" font-family="sans-serif">MFC33</text>
+                            <circle cx="135" cy="280" r="14" fill="#22c55e" stroke="#111827" stroke-width="2"/>
+                            <text x="135" y="316" text-anchor="middle" fill="#a3e635" font-size="18" font-weight="800" font-family="sans-serif">MFC33</text>
 
-                            <circle cx="300" cy="280" r="13" fill="#22c55e" stroke="#111827" stroke-width="2"/>
-                            <text x="300" y="314" text-anchor="middle" fill="#a3e635" font-size="18" font-weight="800" font-family="sans-serif">MFC34</text>
+                            <circle cx="300" cy="280" r="14" fill="#22c55e" stroke="#111827" stroke-width="2"/>
+                            <text x="300" y="316" text-anchor="middle" fill="#a3e635" font-size="18" font-weight="800" font-family="sans-serif">MFC34</text>
 
-                            <circle cx="475" cy="280" r="13" fill="#22c55e" stroke="#111827" stroke-width="2"/>
-                            <text x="475" y="314" text-anchor="middle" fill="#a3e635" font-size="18" font-weight="800" font-family="sans-serif">MFC37</text>
+                            <circle cx="465" cy="280" r="14" fill="#22c55e" stroke="#111827" stroke-width="2"/>
+                            <text x="465" y="316" text-anchor="middle" fill="#a3e635" font-size="18" font-weight="800" font-family="sans-serif">MFC37</text>
                         </g>
 
                         <!-- Bottom Row: MFC31, MFC36, MFC39 -->
                         <g>
-                            <circle cx="125" cy="520" r="13" fill="#22c55e" stroke="#111827" stroke-width="2"/>
-                            <text x="125" y="556" text-anchor="middle" fill="#a3e635" font-size="18" font-weight="800" font-family="sans-serif">MFC31</text>
+                            <circle cx="135" cy="515" r="14" fill="#22c55e" stroke="#111827" stroke-width="2"/>
+                            <text x="135" y="552" text-anchor="middle" fill="#a3e635" font-size="18" font-weight="800" font-family="sans-serif">MFC31</text>
 
-                            <circle cx="300" cy="520" r="13" fill="#22c55e" stroke="#111827" stroke-width="2"/>
-                            <text x="300" y="556" text-anchor="middle" fill="#a3e635" font-size="18" font-weight="800" font-family="sans-serif">MFC36</text>
+                            <circle cx="300" cy="515" r="14" fill="#22c55e" stroke="#111827" stroke-width="2"/>
+                            <text x="300" y="552" text-anchor="middle" fill="#a3e635" font-size="18" font-weight="800" font-family="sans-serif">MFC36</text>
 
-                            <circle cx="475" cy="520" r="13" fill="#22c55e" stroke="#111827" stroke-width="2"/>
-                            <text x="475" y="556" text-anchor="middle" fill="#a3e635" font-size="18" font-weight="800" font-family="sans-serif">MFC39</text>
+                            <circle cx="465" cy="515" r="14" fill="#22c55e" stroke="#111827" stroke-width="2"/>
+                            <text x="465" y="552" text-anchor="middle" fill="#a3e635" font-size="18" font-weight="800" font-family="sans-serif">MFC39</text>
                         </g>
                     </svg>
-                </div>
-
-                <!-- External Original Photo View (Requires uploading mfc_layout.jpg to GitHub repo) -->
-                <div class="chamber-photo-wrap" id="photoDiagramWrap">
-                    <img src="mfc_layout.jpg" alt="챔버 내 O2 MFC 위치 원본 도면" onerror="this.style.display='none'; document.getElementById('imgErrorMsg').style.display='block';">
-                    <div id="imgErrorMsg" style="display:none; padding: 24px; background: #fff1f2; color: #be123c; border-radius: 8px; font-size: 0.84rem; line-height: 1.6;">
-                        <strong>원본 이미지 파일(mfc_layout.jpg)이 아직 업로드되지 않았습니다.</strong><br>
-                        GitHub 저장소에 도면 사진을 <code>mfc_layout.jpg</code>라는 이름으로 함께 업로드하면 이 탭에서 원본 사진이 그대로 표시됩니다.<br>
-                        (상단의 <strong>'CAD 치수 벡터 도면'</strong> 탭을 누르면 별도 파일 없이도 즉시 위치를 확인할 수 있습니다.)
-                    </div>
                 </div>
 
                 <div class="modal-caption">
@@ -1437,25 +1339,6 @@
         function closeChamberModalOnBg(e) {
             if (e.target.id === 'chamberModal') {
                 closeChamberModal();
-            }
-        }
-
-        function switchModalTab(mode) {
-            const svgWrap = document.getElementById('svgDiagramWrap');
-            const imgWrap = document.getElementById('photoDiagramWrap');
-            const btnSvg = document.getElementById('tabBtnSvg');
-            const btnImg = document.getElementById('tabBtnImg');
-
-            if (mode === 'svg') {
-                svgWrap.style.display = 'block';
-                imgWrap.style.display = 'none';
-                btnSvg.classList.add('active');
-                btnImg.classList.remove('active');
-            } else {
-                svgWrap.style.display = 'none';
-                imgWrap.style.display = 'block';
-                btnSvg.classList.remove('active');
-                btnImg.classList.add('active');
             }
         }
 
